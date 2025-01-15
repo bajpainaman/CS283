@@ -15,12 +15,10 @@
     - [ ] NO - Not Yet
 
 3. Please provide a link to the repository you are using for this class:
-   (We will add this after creating the repository on GitHub)
+  [ Link to repo](https://github.com/bajpainaman/CS283/)
 
 4. Briefly describe what you want to get out of this class:
-   I want to gain a deeper understanding of systems programming in C, learn about memory management, 
-   process control, and system-level programming concepts that will help me become a better software developer.
+I want to gain a deep understanding of how the Linux operating system interacts with software and hardware, focusing on systems programming with C. I aim to improve my proficiency in debugging, process management, and network programming to build more efficient and reliable software.
 
 5. Briefly describe any concerns you might be having with being successful in this class (if any):
-   No major concerns at this time, but I will make sure to stay on top of assignments and seek help 
-   if I encounter any difficulties with the course material.
+My primary concern is adapting to the complexity of systems programming in C, especially since I'm relatively new to C programming. However, I am confident that consistent practice and using the available resources will help me overcome these challenges.
