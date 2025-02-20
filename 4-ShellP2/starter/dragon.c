@@ -1,0 +1,66 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "dshlib.h"
+
+/*
+ * decode_base64:
+ *   Decodes a Base64-encoded string.
+ */
+static unsigned char *decode_base64(const char *input, size_t *out_size) {
+    static unsigned char B64_INDEX[256] = {0xFF};
+    static int initialized = 0;
+
+    if (!initialized) {
+        const char *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+        for (int i = 0; i < 64; i++) {
+            B64_INDEX[(unsigned char)alphabet[i]] = (unsigned char)i;
+        }
+        initialized = 1;
+    }
+
+    size_t input_len = strlen(input);
+    size_t max_decoded_len = (input_len / 4) * 3;
+    unsigned char *output = (unsigned char *)malloc(max_decoded_len + 1);
+    if (!output) {
+        *out_size = 0;
+        return NULL;
+    }
+
+    int val = 0, valb = -8;
+    size_t output_index = 0;
+    for (size_t i = 0; i < input_len; i++) {
+        unsigned char c = input[i];
+        if (c == '=') break;
+        unsigned char d = B64_INDEX[c];
+        if (d == 0xFF) continue;
+        val = (val << 6) | d;
+        valb += 6;
+        if (valb >= 0) {
+            output[output_index++] = (unsigned char)((val >> valb) & 0xFF);
+            valb -= 8;
+        }
+    }
+
+    output[output_index] = '\0';
+    *out_size = output_index;
+    return output;
+}
+
+/*
+ * print_dragon:
+ *   Decodes and prints the Base64-encoded Drexel Dragon ASCII art.
+ */
+void print_dragon(void) {
+    static const char DRAGON_B64[] =
+        "ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgQCUlJSUgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAlJSUlJSUgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgJSUlJSUlICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAlICUlJSUlJSUgICAgICAgICAgIEAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgJSUlJSUlJSUlJSAgICAgICAgJSUlJSUlJSAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICUlJSUlJSUgICUlJSVAICAgICAgICAgJSUlJSUlJSUlJSUlQCAgICAlJSUlJSUgIEAlJSUlICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICUlJSUlJSUlJSUlJSUlJSUlJSUlJSUgICAgICAlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlICAgJSUlJSUlJSUlJSUlICUlJSUlJSUlJSUlJSUlJSAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSAlJSUlJSUlJSUlJSUlJSUlJSUlICAgICAlJSUgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlQCBAJSUlJSUlJSUlJSUlJSUlJSUlICAgICAgICAlJSAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlICUlJSUlJSUlJSUlJSUlJSUlJSUlJSUgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlQCUlJSUlJUAgICAgICAgICAgICAgIAogICAgICAlJSUlJSUlJUAgICAgICAgICAgICUlJSUlJSUlJSUlJSUlJSUgICAgICAgICUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlICAgICAgJSUgICAgICAgICAgICAgICAgCiAgICAlJSUlJSUlJSUlJSUlICAgICAgICAgJSVAJSUlJSUlJSUlJSUlICAgICAgICAgICAlJSUlJSUlJSUlJSAlJSUlJSUlJSUlJSUgICAgICBAJSAgICAgICAgICAgICAgICAKICAlJSUlJSUlJSUlICAgJSUlICAgICAgICAlJSUlJSUlJSUlJSUlJSAgICAgICAgICAgICUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSAgICAgICAgICAgICAgICAgICAgICAgIAogJSUlJSUlJSUlICAgICAgICUgICAgICAgICAlJSUlJSUlJSUlJSUlICAgICAgICAgICAgICUlJSUlJSUlJSUlJUAlJSUlJSUlJSUlJSAgICAgICAgICAgICAgICAgICAgICAgCiUlJSUlJSUlJUAgICAgICAgICAgICAgICAgJSAlJSUlJSUlJSUlJSUlICAgICAgICAgICAgQCUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUgICAgICAgICAgICAgICAgICAgICAKJSUlJSUlJSVAICAgICAgICAgICAgICAgICAlJUAlJSUlJSUlJSUlJSUgICAgICAgICAgICBAJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSAgICAgICAgICAgICAgICAgIAolJSUlJSUlQCAgICAgICAgICAgICAgICAgICAlJSUlJSUlJSUlJSUlJSUgICAgICAgICAgICUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSAgICAgICAgICAgICAgCiUlJSUlJSUlJSUgICAgICAgICAgICAgICAgICAlJSUlJSUlJSUlJSUlJSUgICAgICAgICAgJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUlJSUgICAgICAlJSUlICAKJSUlJSUlJSUlQCAgICAgICAgICAgICAgICAgICBAJSUlJSUlJSUlJSUlJSUgICAgICAgICAlJSUlJSUlJSUlJSVAICUlJSUgJSUlJSUlJSUlJSUlJSUlJSUgICAlJSUlJSUlJQ==";
+    
+    size_t out_size = 0;
+    unsigned char *decoded = decode_base64(DRAGON_B64, &out_size);
+    if (decoded) {
+        printf("%s\n", decoded);
+        free(decoded);
+    } else {
+        fprintf(stderr, "Error decoding dragon art\n");
+    }
+}
